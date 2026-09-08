@@ -143,7 +143,7 @@ const ServicePage = () => {
             className="text-2xl font-bold font-heading shrink-0"
           >
             <img
-              src="/assets/host-age3.png"
+              src="/assets/Host-age3.png"
               alt="Host-Age"
               className="w-[140px] h-[140px] object-contain"
             />
