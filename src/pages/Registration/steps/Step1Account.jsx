@@ -276,7 +276,7 @@ const Step1Account = ({ data, setData, nextStep }) => {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-xl transition-colors duration-300">
-        <img src="/assets/host-age2.png"
+        <img src="/assets/Host-age3.png"
           alt="Host-Age"
           className="w-[140px] h-[140px] object-contain"
         />
