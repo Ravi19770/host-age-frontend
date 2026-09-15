@@ -97,7 +97,7 @@ const LoginPage = () => {
     if (userDomains.length === 0) {
       navigate("/add-domain");
     } else {
-      navigate("/dashboard");
+      navigate("/services#pricing");
     }
 
   } catch (err) {

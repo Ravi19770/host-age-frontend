@@ -121,7 +121,7 @@ const ServicePage = () => {
     }
 
     // Paid Plan → Add Domain Page
-    navigate("/add-domain", {
+    navigate("/register", {
       state: {
         plan: selectedPlan,
         skipPayment: false,
@@ -380,7 +380,7 @@ const ServicePage = () => {
                         : "bg-violet-100 text-violet-700"
                       }`}
                   >
-                    ✦
+                    HA
                   </div>
 
                   {/* Badge */}

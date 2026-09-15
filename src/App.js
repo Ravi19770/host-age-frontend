@@ -48,6 +48,9 @@ function App() {
       {/* Home */}
       <Route path="/" element={<ServicePage />} />
       <Route path="/pricing" element={<ServicePage />} />
+      <Route path="/" element={<ServicePage />} />
+      <Route path="/services" element={<ServicePage />} />
+      <Route path="/pricing" element={<ServicePage />} />
 
       {/* Authentication */}
       <Route path="/login" element={<LoginPage />} />
@@ -99,8 +102,8 @@ function App() {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-  
-  
+
+
 
 
 
@@ -109,7 +112,7 @@ function App() {
         element={<AddDomainPages />}
       />
 
-      
+
 
     </Routes>
   );
