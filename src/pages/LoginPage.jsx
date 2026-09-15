@@ -95,7 +95,7 @@ const LoginPage = () => {
     const userDomains = Array.isArray(data?.data) ? data.data : [];
 
     if (userDomains.length === 0) {
-      navigate("/add-domain");
+      navigate("/services#pricing");
     } else {
       navigate("/services#pricing");
     }
