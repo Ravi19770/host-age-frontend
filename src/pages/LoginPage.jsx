@@ -94,11 +94,14 @@ const LoginPage = () => {
     // ==========================================
     const userDomains = Array.isArray(data?.data) ? data.data : [];
 
-    if (userDomains.length === 0) {
+    //if (userDomains.length === 0) {
       navigate("/services#pricing");
-    } else {
-      navigate("/services#pricing");
-    }
+    //} else {
+   //   navigate("/services#pricing");
+  //  }
+  navigate("/services#pricing", {
+  replace: true,
+});
 
   } catch (err) {
     console.error(
