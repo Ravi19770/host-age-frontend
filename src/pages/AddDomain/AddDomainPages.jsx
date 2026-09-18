@@ -177,7 +177,7 @@ export default function AddDomainPages() {
       className="flex shrink-0 items-center"
     >
       <img
-        src="/assets/host-age3.png"
+        src="/assets/Host-age3.png"
         alt="Host-Age"
          className="w-[140px] h-[140px] object-contain"
       />

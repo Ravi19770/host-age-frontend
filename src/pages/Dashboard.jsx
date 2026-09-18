@@ -119,7 +119,7 @@ const Dashboard = () => {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           <Link to="/dashboard" className="flex items-center gap-2.5">
             <img
-              src="/assets/host-age3.png"
+              src="/assets/Host-age3.png"
               alt="Host-Age"
               className="w-[140px] h-[140px] object-contain"
             />
@@ -372,3 +372,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
