@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { useAuth } from "../context/AuthContext";
 import StepIndicator from "../components/StepIndicator";
+import API_URL from "../config/api";
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -12,9 +13,6 @@ import { Checkbox } from "../components/ui/checkbox";
 
 import { AlertCircle, Trash2 } from "lucide-react";
 
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL ||
-  "http://localhost:5200";
 
 const RegistrationWizard = () => {
   const navigate = useNavigate();

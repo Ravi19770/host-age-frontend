@@ -4,6 +4,7 @@ import useTermsAcceptance from "../hooks/UseTermsAcceptance";
 import TermsModal from "../components/terms/TermsModal";
 
 import { useNavigate, useLocation } from "react-router-dom";
+import { PAYMENT_API } from "../config/api";
 
 import {
     User,
@@ -127,7 +128,7 @@ const Billing = () => {
         try {
             setLoading(true);
             const API_URL = process.env.REACT_APP_API_URL;
-            const res = await fetch("http://localhost:5001/api/payment/create-order", {
+            const res = await fetch(`${PAYMENT_API}/api/payment/create-order`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

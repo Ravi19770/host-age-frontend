@@ -7,6 +7,7 @@ import Step3Payment from "./steps/Step3Payment";
 
 import Step4Domain from "./Step4Domain";
 import Step5Email from "./Step5Email";
+import API_URL from "../../config/api";
 
 
 const RegistrationWizardd = () => {

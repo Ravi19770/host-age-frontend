@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 
 import { useAuth } from "../../../context/AuthContext";
+import API_URL from "../../../config/api";
 
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
@@ -10,9 +11,7 @@ import { Checkbox } from "../../../components/ui/checkbox";
 
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL ||
-  "http://localhost:5200";
+
 
 const Step1Account = ({ data, setData, nextStep }) => {
   const { register: registerUser } = useAuth();
