@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import axios from "axios";
+import API_URL from "../config/api";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {
@@ -14,8 +15,6 @@ import {
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 
-const API_URL =
-    process.env.REACT_APP_API_URL || "http://localhost:5200";
 
 export default function AddDomainPage() {
     const navigate = useNavigate();

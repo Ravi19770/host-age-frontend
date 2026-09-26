@@ -11,11 +11,10 @@ import {
 
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import API_URL from "../../config/api";
 
 
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  "http://localhost:5200";
+
 
 const DOMAIN_REGEX =
   /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;

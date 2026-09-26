@@ -13,9 +13,8 @@ import {
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import API_URL from "../config/api";
 
-const API_URL =
-    process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 export default function AddDomainPage() {
     const navigate = useNavigate();

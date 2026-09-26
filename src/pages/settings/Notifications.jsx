@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import API_URL from "../../config/api";
 import SettingsCard from "./SettingsCard";
 import ToggleSwitch from "./ToggleSwitch";
 import SaveButton from "./components/SaveButton";
 
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
 
 const defaultSettings = {
   email: true,

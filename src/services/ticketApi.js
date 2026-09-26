@@ -1,31 +1,25 @@
-import axios from "axios";
+import api from "../api/axios";
 
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5200";
-
-const api = axios.create({
-  baseURL: `${API_URL}/api`,
-  withCredentials: true,
-});
+const ticketApi = api;
 
 export const getTicketById = (id) =>
-  api.get(`/tickets/${id}`);
+  ticketApi.get(`/api/tickets/${id}`);
 
 export const getTicketMessages = (id) =>
-  api.get(`/tickets/${id}/messages`);
+  ticketApi.get(`/api/tickets/${id}/messages`);
 
 export const replyTicket = (id, data) =>
-  api.post(`/tickets/${id}/reply`, data);
+  ticketApi.post(`/api/tickets/${id}/reply`, data);
 
 export const updateTicket = (id, data) =>
-  api.put(`/tickets/${id}`, data);
+  ticketApi.put(`/api/tickets/${id}`, data);
 
 export const assignAgent = (id, agentId) =>
-  api.put(`/tickets/${id}/assign`, {
+  ticketApi.put(`/api/tickets/${id}/assign`, {
     agentId,
   });
 
 export const addInternalNote = (id, note) =>
-  api.post(`/tickets/${id}/internal-note`, {
+  ticketApi.post(`/api/tickets/${id}/internal-note`, {
     note,
   });

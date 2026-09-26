@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_URL from "../../config/api";
 
 import SettingsCard from "./SettingsCard";
 import FormInput from "./components/FormInput";
 import ProfileAvatar from "./components/ProfileAvatar";
 import SaveButton from "./components/SaveButton";
 
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 const General = () => {
   const [loading, setLoading] = useState(false);

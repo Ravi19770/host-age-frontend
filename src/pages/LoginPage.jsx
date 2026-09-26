@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_URL from "../config/api";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "../components/ui/button";
@@ -7,8 +8,6 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { AlertCircle } from "lucide-react";
 
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5200";
 
 const LoginPage = () => {
   const navigate = useNavigate();

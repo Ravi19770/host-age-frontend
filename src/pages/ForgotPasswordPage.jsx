@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
 // ✅ SAFE FALLBACK (prevents undefined crash)
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5200";
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 
 const TicketManagement = ({ ticket }) => {
   const [status, setStatus] = useState("");
@@ -16,19 +16,12 @@ const TicketManagement = ({ ticket }) => {
 
   const saveChanges = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.put(
-        `http://localhost:5000/api/tickets/${ticket.id}`,
+      await api.put(
+        `/api/tickets/${ticket.id}`,
         {
           status,
           priority,
           department,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -41,15 +34,15 @@ const TicketManagement = ({ ticket }) => {
 
   return (
     <div className="bg-white rounded-xl shadow p-6">
-
       <h2 className="text-lg font-semibold mb-5">
         Ticket Management
       </h2>
 
       <div className="space-y-4">
-
         <div>
-          <label className="block mb-2 font-medium">Status</label>
+          <label className="block mb-2 font-medium">
+            Status
+          </label>
 
           <select
             className="w-full border rounded-lg p-2"
@@ -65,7 +58,9 @@ const TicketManagement = ({ ticket }) => {
         </div>
 
         <div>
-          <label className="block mb-2 font-medium">Priority</label>
+          <label className="block mb-2 font-medium">
+            Priority
+          </label>
 
           <select
             className="w-full border rounded-lg p-2"
@@ -80,7 +75,9 @@ const TicketManagement = ({ ticket }) => {
         </div>
 
         <div>
-          <label className="block mb-2 font-medium">Department</label>
+          <label className="block mb-2 font-medium">
+            Department
+          </label>
 
           <select
             className="w-full border rounded-lg p-2"
@@ -101,7 +98,6 @@ const TicketManagement = ({ ticket }) => {
         >
           Save Changes
         </button>
-
       </div>
     </div>
   );

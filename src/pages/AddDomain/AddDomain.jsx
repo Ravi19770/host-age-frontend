@@ -1,9 +1,10 @@
-import { useState } from "react";
-
+import { useState } from "react"
+import API_URL from "../../config/api";
 import StepIndicator from "./components/StepIndicator";
 import DomainStep from "./components/DomainStep";
 import PurposeStep from "./components/PurposeStep";
 import VerificationStep from "./components/VerificationStep";
+
 
 import {
   createDomain,

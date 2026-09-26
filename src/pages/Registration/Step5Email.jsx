@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import API_URL from "../../config/api";
 import {
     AlertCircle,
     Trash2
@@ -9,9 +10,6 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 
-const API_URL =
-    process.env.REACT_APP_API_URL ||
-    "http://localhost:5200";
 
 
 const Step5Email = ({

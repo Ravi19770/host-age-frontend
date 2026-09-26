@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../api/axios";
 import { useState } from "react";
 import { Upload, ArrowLeft, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -55,8 +55,8 @@ const CreateTicket = () => {
 
       const token = localStorage.getItem("token");
 
-      const response = await axios.post(
-        "http://localhost:5000/api/tickets",
+      const response = await api.post(
+        "/api/tickets",
         payload,
         {
           headers: {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 import TicketTable from "../../components/Admin/TicketTable";
+import api from "../../api/axios";
 
 const TicketDashboard = () => {
   const [tickets, setTickets] = useState([]);
@@ -12,16 +12,7 @@ const TicketDashboard = () => {
 
   const fetchTickets = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        "http://localhost:5000/api/tickets",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.get("/api/tickets");
 
       console.log("Tickets =>", res.data);
 

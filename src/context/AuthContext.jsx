@@ -5,6 +5,7 @@ import React, {
   useEffect,
 } from "react";
 import axios from "axios";
+import API_URL from "../config/api";
 
 const AuthContext = createContext(null);
 
@@ -17,17 +18,6 @@ export const useAuth = () => {
 
   return context;
 };
-
-// =====================================================
-// API URL
-// =====================================================
-// .env:
-// REACT_APP_BACKEND_URL=http://localhost:5000
-//
-// IMPORTANT:
-// Do NOT put /api at the end of REACT_APP_BACKEND_URL.
-const API_URL =
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:5200";
 
 console.log("🌐 AUTH API URL:", API_URL);
 

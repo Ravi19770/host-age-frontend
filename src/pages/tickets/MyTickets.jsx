@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+
 import { Search, Menu, X } from "lucide-react";
 
 import { Link } from "react-router-dom";
@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/button";
 import ThemeToggle from "../../components/ThemeToggle";
 
 import TicketCard from "../../components/ticket/TicketCard";
+import api from "../../api/axios";
 // import TicketTable from "../../components/ticket/TicketTable";
 
 const MyTickets = () => {
@@ -25,8 +26,8 @@ const MyTickets = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        "http://localhost:5000/api/tickets",
+      const res = await api.get(
+        "/api/tickets",
         {
           headers: {
             Authorization: `Bearer ${token}`,

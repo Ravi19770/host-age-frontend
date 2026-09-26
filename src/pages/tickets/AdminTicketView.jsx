@@ -1,6 +1,7 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+import api from "../../api/axios";
 
 import CustomerCard from "../../components/ticket/CustomerCard";
 import TicketManagement from "../../components/ticket/TicketManagement.jsx";
@@ -23,16 +24,7 @@ const AdminTicketView = () => {
 
   const fetchTicket = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        `http://localhost:5000/api/tickets/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.get(`/api/tickets/${id}`);
 
       console.log(res.data);
 
