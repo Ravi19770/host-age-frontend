@@ -65,50 +65,62 @@ export default function AddDomainPages() {
     setStep(4);
   };
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      setError("");
 
-      const response =
-        await uploadDomain({
-          domain,
-          websiteSource,
-          websiteUrl:
-            websiteSource === "url"
-              ? websiteUrl
-              : "",
-          githubUrl:
-            websiteSource === "github"
-              ? githubUrl
-              : "",
-          pages,
-          websiteFile:
-            websiteSource === "zip"
-              ? websiteFile
-              : null,
-        });
+const handleSubmit = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      console.log(
-        "Domain upload response:",
-        response
-      );
+    const response = await uploadDomain({
+      domain,
+      websiteSource,
+      websiteUrl:
+        websiteSource === "url"
+          ? websiteUrl
+          : "",
+      githubUrl:
+        websiteSource === "github"
+          ? githubUrl
+          : "",
+      pages,
+      websiteFile:
+        websiteSource === "zip"
+          ? websiteFile
+          : null,
+    });
 
-      setSuccess(true);
-    } catch (err) {
-      console.error(
-        "Add domain error:",
-        err
-      );
+    console.log("Domain upload response:", response);
 
-      setError(
-        err.message ||
-          "Unable to add domain."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Domain added successfully
+    // Now move user to payment gateway
+    navigate("/payment", {
+      state: {
+        domain,
+        websiteSource,
+        websiteUrl:
+          websiteSource === "url"
+            ? websiteUrl
+            : "",
+        githubUrl:
+          websiteSource === "github"
+            ? githubUrl
+            : "",
+        pages,
+        domainResponse: response,
+      },
+    });
+  } catch (err) {
+    console.error("Add domain error:", err);
+
+    setError(
+      err.message ||
+        "Unable to add domain."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (success) {
     return (

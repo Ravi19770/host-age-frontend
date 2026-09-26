@@ -135,25 +135,27 @@ const PaymentSuccessPage = () => {
   // ==========================
 
  useEffect(() => {
-    if (status !== "success") return;
+  if (status !== "success") return;
 
-    const timer = setInterval(() => {
-        setCountdown((prev) => {
-            if (prev <= 1) {
-                clearInterval(timer);
+  const timer = setInterval(() => {
+    setCountdown((prev) => {
+      if (prev <= 1) {
+        clearInterval(timer);
 
-                navigate("/register?step=4");
-
-                return 0;
-            }
-
-            return prev - 1;
+        navigate("/dashboard", {
+          replace: true,
         });
-    }, 1000);
 
-    return () => clearInterval(timer);
+        return 0;
+      }
 
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
 }, [status, navigate]);
+
   // ==========================
   // LOADING SCREEN
   // ==========================

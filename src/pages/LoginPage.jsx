@@ -99,7 +99,7 @@ const LoginPage = () => {
     //} else {
    //   navigate("/services#pricing");
   //  }
-  navigate("/services#pricing", {
+  navigate("/pricing", {
   replace: true,
 });
 

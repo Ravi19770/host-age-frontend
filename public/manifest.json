@@ -3,10 +3,10 @@
   "name": "Host-Age | Host & Domain",
   "icons": [
     {
-  "src": "Host-age3.png",
-  "sizes": "64x64 32x32 24x24 16x16",
-  "type": "image/x-icon"
-},
+      "src": "Host-age3.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
     {
       "src": "Host-age3.png",
       "type": "image/png",

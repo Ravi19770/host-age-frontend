@@ -37,6 +37,7 @@ export default function AddDomainPage() {
      */
     const includedEmailAccounts = useMemo(() => {
         const value =
+            selectedPlan?.maxEmails ??
             selectedPlan?.emailAccounts ??
             selectedPlan?.includedEmails ??
             selectedPlan?.emails ??
@@ -110,7 +111,7 @@ export default function AddDomainPage() {
 
     const [urlError, setUrlError] = useState("");
     const [githubError, setGithubError] = useState("");
-        // =========================================================
+    // =========================================================
     // FILE UPLOAD
     // =========================================================
 
@@ -182,7 +183,7 @@ export default function AddDomainPage() {
         }
 
         const regex =
-            /^https?:\/\/([\w-]+\.)+[\w-]{2,}(\/.*)?$/i;
+            /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/i;
 
         if (!regex.test(value)) {
             setUrlError(
@@ -229,482 +230,133 @@ export default function AddDomainPage() {
     };
 
     // ============================================================
-// DOMAIN HELPERS
-// ============================================================
+    // DOMAIN HELPERS
+    // ============================================================
 
-const addDomainField = () => {
-    setDomains((prev) => [...prev, ""]);
-};
+    const addDomainField = () => {
+        setDomains((prev) => [...prev, ""]);
+    };
 
-const removeDomainField = (index) => {
-    setDomains((prev) =>
-        prev.filter((_, i) => i !== index)
-    );
-};
-
-const updateDomain = (index, value) => {
-    setDomains((prev) => {
-        const updated = [...prev];
-        updated[index] = value;
-        return updated;
-    });
-};
-
-
-// ============================================================
-// EMAIL COUNTERS
-// ============================================================
-
-const usedEmailAccounts = businessEmails.length;
-
-const remainingEmailAccounts = Math.max(
-    includedEmailAccounts - usedEmailAccounts,
-    0
-);
-
-
-// ============================================================
-// REMOVE EMAIL REQUEST
-// ============================================================
-
-const removeBusinessEmail = (index) => {
-    setBusinessEmails((prev) =>
-        prev.filter((_, i) => i !== index)
-    );
-};
-
-
-// ============================================================
-// ADD EMAIL REQUEST
-// ============================================================
-
-const handleAddEmailRequest = async () => {
-  setEmailRequestError("");
-
-  const username =
-    emailRequest.username.trim().toLowerCase();
-
-  if (!username) {
-    setEmailRequestError(
-      "Please enter an email username."
-    );
-    return;
-  }
-
-  if (!/^[a-z0-9._-]+$/.test(username)) {
-    setEmailRequestError(
-      "Only letters, numbers, dots, hyphens and underscores are allowed."
-    );
-    return;
-  }
-
-  if (!domains[0]?.trim()) {
-    setEmailRequestError(
-      "Please enter your domain first."
-    );
-    return;
-  }
-
-  if (
-    businessEmails.length >=
-    includedEmailAccounts
-  ) {
-    setEmailRequestError(
-      "You have reached your included email limit."
-    );
-    return;
-  }
-
-  const alreadyExists =
-    businessEmails.some(
-      (email) =>
-        email.username.toLowerCase() === username
-    );
-
-  if (alreadyExists) {
-    setEmailRequestError(
-      "This email account has already been requested."
-    );
-    return;
-  }
-
-  const domain =
-    domains[0].trim().toLowerCase();
-
-  const email =
-    `${username}@${domain}`;
-
-  const token =
-    localStorage.getItem("token");
-
-  if (!token) {
-    setEmailRequestError(
-      "Your session has expired. Please login again."
-    );
-    return;
-  }
-
-  try {
-    const response = await axios.post(
-      `${API_URL}/api/email-pages`,
-      {
-        domain,
-        username,
-        email,
-        quota:
-          Number(emailRequest.quota) || 5,
-        purpose:
-          emailRequest.purpose.trim(),
-      },
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
-      }
-    );
-
-    console.log(
-      "📩 Email Request API Response:",
-      response.data
-    );
-
-    if (!response.data?.success) {
-      setEmailRequestError(
-        response.data?.message ||
-          "Unable to create email request."
-      );
-      return;
-    }
-
-    // Add only after backend successfully saves it
-    setBusinessEmails((prev) => [
-      ...prev,
-      {
-        id: response.data?.data?.id,
-        username,
-        email,
-        quota:
-          Number(emailRequest.quota) || 5,
-        purpose:
-          emailRequest.purpose.trim(),
-        status:
-          response.data?.data?.status ||
-          "pending",
-      },
-    ]);
-
-    // Reset form
-    setEmailRequest({
-      username: "",
-      quota: "5",
-      purpose: "",
-    });
-
-    setEmailRequestError("");
-
-    console.log(
-      "✅ Email request successfully created:",
-      email
-    );
-
-  } catch (err) {
-    console.error(
-      "❌ Email Request Error:",
-      err
-    );
-
-    setEmailRequestError(
-      err.response?.data?.message ||
-        err.message ||
-        "Failed to submit email request."
-    );
-  }
-};
-
-
-// ============================================================
-// MAIN SUBMIT
-// ============================================================
-
-const handleStep2Submit = async (e) => {
-    e.preventDefault();
-
-    setError("");
-    setEmailRequestError("");
-
-    const token =
-        localStorage.getItem("token");
-
-    if (!token) {
-        setError(
-            "Authentication failed. Please login again."
+    const removeDomainField = (index) => {
+        setDomains((prev) =>
+            prev.filter((_, i) => i !== index)
         );
+    };
 
-        navigate("/login");
-        return;
-    }
+    const updateDomain = (index, value) => {
+        setDomains((prev) => {
+            const updated = [...prev];
+            updated[index] = value;
+            return updated;
+        });
+    };
 
 
-    // --------------------------------------------------------
-    // DOMAIN
-    // --------------------------------------------------------
+    // ============================================================
+    // EMAIL COUNTERS
+    // ============================================================
 
-    const cleanDomains = domains
-        .map((domain) =>
-            domain.trim().toLowerCase()
-        )
-        .filter(Boolean);
+    const usedEmailAccounts = businessEmails.length;
 
-    if (cleanDomains.length === 0) {
-        setError(
-            "Please enter at least one domain."
+    const remainingEmailAccounts = Math.max(
+        includedEmailAccounts - usedEmailAccounts,
+        0
+    );
+
+
+    // ============================================================
+    // REMOVE EMAIL REQUEST
+    // ============================================================
+
+    const removeBusinessEmail = (index) => {
+        setBusinessEmails((prev) =>
+            prev.filter((_, i) => i !== index)
         );
-        return;
-    }
-
-    const domainRegex =
-        /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/i;
-
-    const invalidDomain =
-        cleanDomains.find(
-            (domain) =>
-                !domainRegex.test(domain)
-        );
-
-    if (invalidDomain) {
-        setError(
-            `Invalid domain: ${invalidDomain}`
-        );
-        return;
-    }
+    };
 
 
-    // --------------------------------------------------------
-    // WEBSITE SOURCE
-    // --------------------------------------------------------
+    // ============================================================
+    // ADD EMAIL REQUEST
+    // ============================================================
 
-    if (!websiteSource) {
-        setError(
-            "Please select Website Source."
-        );
-        return;
-    }
+    const handleAddEmailRequest = async () => {
+        setEmailRequestError("");
 
-    if (
-        websiteSource === "upload" &&
-        !websiteFile
-    ) {
-        setError(
-            "Please upload your website ZIP file."
-        );
-        return;
-    }
+        const username =
+            emailRequest.username.trim().toLowerCase();
 
-    if (
-        websiteSource === "url"
-    ) {
-        if (!websiteUrl.trim()) {
-            setError(
-                "Please enter your website URL."
+        if (!username) {
+            setEmailRequestError(
+                "Please enter an email username."
             );
             return;
         }
 
-        if (urlError) {
-            setError(
-                "Please fix the website URL."
-            );
-            return;
-        }
-    }
-
-    if (
-        websiteSource === "github"
-    ) {
-        if (!githubUrl.trim()) {
-            setError(
-                "Please enter your GitHub repository URL."
+        if (!/^[a-z0-9._-]+$/.test(username)) {
+            setEmailRequestError(
+                "Only letters, numbers, dots, hyphens and underscores are allowed."
             );
             return;
         }
 
-        if (githubError) {
-            setError(
-                "Please fix the GitHub URL."
+        if (!domains[0]?.trim()) {
+            setEmailRequestError(
+                "Please enter your domain first."
             );
             return;
         }
-    }
 
+        if (
+            businessEmails.length >=
+            includedEmailAccounts
+        ) {
+            setEmailRequestError(
+                "You have reached your included email limit."
+            );
+            return;
+        }
 
-    // --------------------------------------------------------
-    // PAGES
-    // --------------------------------------------------------
+        const alreadyExists =
+            businessEmails.some(
+                (email) =>
+                    email.username.toLowerCase() === username
+            );
 
-    if (
-        !pages ||
-        Number(pages) <= 0
-    ) {
-        setError(
-            "Please enter a valid number of pages."
-        );
-        return;
-    }
+        if (alreadyExists) {
+            setEmailRequestError(
+                "This email account has already been requested."
+            );
+            return;
+        }
 
+        const domain =
+            domains[0].trim().toLowerCase();
 
-    // --------------------------------------------------------
-    // TERMS
-    // --------------------------------------------------------
+        const email =
+            `${username}@${domain}`;
 
-    if (!modalTermsChecked) {
-        setError(
-            "Please accept Terms & Conditions."
-        );
-        return;
-    }
+        const token =
+            localStorage.getItem("token");
 
+        if (!token) {
+            setEmailRequestError(
+                "Your session has expired. Please login again."
+            );
+            return;
+        }
 
-    // --------------------------------------------------------
-    // EMAIL REQUESTS
-    // --------------------------------------------------------
-
-    const validBusinessEmails =
-        businessEmails
-            .filter(
-                (item) =>
-                    item.username &&
-                    item.username.trim()
-            )
-            .map((item) => ({
-                username:
-                    item.username
-                        .trim()
-                        .toLowerCase(),
-
-                email:
-                    `${item.username
-                        .trim()
-                        .toLowerCase()}@${cleanDomains[0]}`,
-
-                quota:
-                    Number(item.quota) || 5,
-
-                purpose:
-                    item.purpose?.trim() || "",
-
-                status: "pending",
-            }));
-
-    if (
-        validBusinessEmails.length >
-        includedEmailAccounts
-    ) {
-        setError(
-            `You can request a maximum of ${includedEmailAccounts} email accounts.`
-        );
-        return;
-    }
-
-
-    // --------------------------------------------------------
-    // FORM DATA
-    // --------------------------------------------------------
-
-    const formData = new FormData();
-
-    formData.append(
-        "domain",
-        cleanDomains[0]
-    );
-
-    formData.append(
-        "domains",
-        JSON.stringify(cleanDomains)
-    );
-
-    formData.append(
-        "businessEmails",
-        JSON.stringify(
-            validBusinessEmails
-        )
-    );
-
-    formData.append(
-        "websiteSource",
-        websiteSource
-    );
-
-    formData.append(
-        "pages",
-        String(pages)
-    );
-
-    formData.append(
-        "termsAccepted",
-        String(modalTermsChecked)
-    );
-
-    if (selectedPlan) {
-        formData.append(
-            "plan",
-            JSON.stringify(selectedPlan)
-        );
-    }
-
-    if (
-        websiteSource === "url"
-    ) {
-        formData.append(
-            "websiteUrl",
-            websiteUrl.trim()
-        );
-    }
-
-    if (
-        websiteSource === "github"
-    ) {
-        formData.append(
-            "githubUrl",
-            githubUrl.trim()
-        );
-    }
-
-    if (
-        websiteSource === "upload" &&
-        websiteFile
-    ) {
-        formData.append(
-            "websiteFile",
-            websiteFile
-        );
-    }
-
-
-    // --------------------------------------------------------
-    // API
-    // --------------------------------------------------------
-
-    console.log(
-        "========== ADD DOMAIN =========="
-    );
-
-    for (
-        const pair of formData.entries()
-    ) {
-        console.log(
-            pair[0],
-            pair[1]
-        );
-    }
-
-    setLoading(true);
-
-    try {
-        const response =
-            await axios.post(
-                `${API_URL}/api/domains/upload`,
-                formData,
+        try {
+            const response = await axios.post(
+                `${API_URL}/api/email-pages`,
+                {
+                    domain,
+                    username,
+                    email,
+                    quota:
+                        Number(emailRequest.quota) || 5,
+                    purpose:
+                        emailRequest.purpose.trim(),
+                },
                 {
                     headers: {
                         Authorization:
@@ -713,63 +365,412 @@ const handleStep2Submit = async (e) => {
                 }
             );
 
-        console.log(
-            "API Response:",
-            response.data
-        );
-
-        if (
-            !response.data?.success
-        ) {
-            setError(
-                response.data?.message ||
-                "Domain upload failed."
+            console.log(
+                "📩 Email Request API Response:",
+                response.data
             );
 
+            if (!response.data?.success) {
+                setEmailRequestError(
+                    response.data?.message ||
+                    "Unable to create email request."
+                );
+                return;
+            }
+
+            // Add only after backend successfully saves it
+            setBusinessEmails((prev) => [
+                ...prev,
+                {
+                    id: response.data?.data?.id,
+                    username,
+                    email,
+                    quota:
+                        Number(emailRequest.quota) || 5,
+                    purpose:
+                        emailRequest.purpose.trim(),
+                    status:
+                        response.data?.data?.status ||
+                        "pending",
+                },
+            ]);
+
+            // Reset form
+            setEmailRequest({
+                username: "",
+                quota: "5",
+                purpose: "",
+            });
+
+            setEmailRequestError("");
+
+            console.log(
+                "✅ Email request successfully created:",
+                email
+            );
+
+        } catch (err) {
+            console.error(
+                "❌ Email Request Error:",
+                err
+            );
+
+            setEmailRequestError(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to submit email request."
+            );
+        }
+    };
+
+
+    // ============================================================
+    // MAIN SUBMIT
+    // ============================================================
+
+    const handleStep2Submit = async (e) => {
+        e.preventDefault();
+
+        setError("");
+        setEmailRequestError("");
+
+        const token =
+            localStorage.getItem("token");
+
+        if (!token) {
+            setError(
+                "Authentication failed. Please login again."
+            );
+
+            navigate("/login");
             return;
         }
 
-        localStorage.setItem(
+
+        // --------------------------------------------------------
+        // DOMAIN
+        // --------------------------------------------------------
+
+        const cleanDomains = domains
+            .map((domain) =>
+                domain.trim().toLowerCase()
+            )
+            .filter(Boolean);
+
+        if (cleanDomains.length === 0) {
+            setError(
+                "Please enter at least one domain."
+            );
+            return;
+        }
+
+        const domainRegex =
+            /^(?!-)(?:[a-z0-9-]{1,63}\.)+[a-z]{2,}$/i;
+
+        const invalidDomain =
+            cleanDomains.find(
+                (domain) =>
+                    !domainRegex.test(domain)
+            );
+
+        if (invalidDomain) {
+            setError(
+                `Invalid domain: ${invalidDomain}`
+            );
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // WEBSITE SOURCE
+        // --------------------------------------------------------
+
+        if (!websiteSource) {
+            setError(
+                "Please select Website Source."
+            );
+            return;
+        }
+
+        if (
+            websiteSource === "upload" &&
+            !websiteFile
+        ) {
+            setError(
+                "Please upload your website ZIP file."
+            );
+            return;
+        }
+
+        if (
+            websiteSource === "url"
+        ) {
+            if (!websiteUrl.trim()) {
+                setError(
+                    "Please enter your website URL."
+                );
+                return;
+            }
+
+            if (urlError) {
+                setError(
+                    "Please fix the website URL."
+                );
+                return;
+            }
+        }
+
+        if (
+            websiteSource === "github"
+        ) {
+            if (!githubUrl.trim()) {
+                setError(
+                    "Please enter your GitHub repository URL."
+                );
+                return;
+            }
+
+            if (githubError) {
+                setError(
+                    "Please fix the GitHub URL."
+                );
+                return;
+            }
+        }
+
+
+        // --------------------------------------------------------
+        // PAGES
+        // --------------------------------------------------------
+
+        if (
+            !pages ||
+            Number(pages) <= 0
+        ) {
+            setError(
+                "Please enter a valid number of pages."
+            );
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // TERMS
+        // --------------------------------------------------------
+
+        if (!modalTermsChecked) {
+            setError(
+                "Please accept Terms & Conditions."
+            );
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // EMAIL REQUESTS
+        // --------------------------------------------------------
+
+        const validBusinessEmails =
+            businessEmails
+                .filter(
+                    (item) =>
+                        item.username &&
+                        item.username.trim()
+                )
+                .map((item) => ({
+                    username:
+                        item.username
+                            .trim()
+                            .toLowerCase(),
+
+                    email:
+                        `${item.username
+                            .trim()
+                            .toLowerCase()}@${cleanDomains[0]}`,
+
+                    quota:
+                        Number(item.quota) || 5,
+
+                    purpose:
+                        item.purpose?.trim() || "",
+
+                    status: "pending",
+                }));
+
+        if (
+            validBusinessEmails.length >
+            includedEmailAccounts
+        ) {
+            setError(
+                `You can request a maximum of ${includedEmailAccounts} email accounts.`
+            );
+            return;
+        }
+
+
+        // --------------------------------------------------------
+        // FORM DATA
+        // --------------------------------------------------------
+
+        const formData = new FormData();
+
+        formData.append(
             "domain",
             cleanDomains[0]
         );
 
-        navigate(
-            "/domain/billing",
-            {
-                state: {
-                    plan: selectedPlan,
-                    domain:
-                        cleanDomains[0],
-                    domains:
-                        cleanDomains,
-                    businessEmails:
-                        validBusinessEmails,
-                    websiteSource,
-                    pages:
-                        Number(pages),
-                },
+        formData.append(
+            "domains",
+            JSON.stringify(cleanDomains)
+        );
+
+        formData.append(
+            "businessEmails",
+            JSON.stringify(
+                validBusinessEmails
+            )
+        );
+
+        formData.append(
+            "websiteSource",
+            websiteSource
+        );
+
+        formData.append(
+            "pages",
+            String(pages)
+        );
+
+        formData.append(
+            "termsAccepted",
+            String(modalTermsChecked)
+        );
+
+        if (selectedPlan) {
+            formData.append(
+                "plan",
+                JSON.stringify(selectedPlan)
+            );
+        }
+
+        if (
+            websiteSource === "url"
+        ) {
+            formData.append(
+                "websiteUrl",
+                websiteUrl.trim()
+            );
+        }
+
+        if (
+            websiteSource === "github"
+        ) {
+            formData.append(
+                "githubUrl",
+                githubUrl.trim()
+            );
+        }
+
+        if (
+            websiteSource === "upload" &&
+            websiteFile
+        ) {
+            formData.append(
+                "websiteFile",
+                websiteFile
+            );
+        }
+
+
+        // --------------------------------------------------------
+        // API
+        // --------------------------------------------------------
+
+        console.log(
+            "========== ADD DOMAIN =========="
+        );
+
+        for (
+            const pair of formData.entries()
+        ) {
+            console.log(
+                pair[0],
+                pair[1]
+            );
+        }
+
+        setLoading(true);
+
+        try {
+            const response =
+                await axios.post(
+                    `${API_URL}/api/domains/upload`,
+                    formData,
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`,
+                        },
+                    }
+                );
+
+            console.log(
+                "API Response:",
+                response.data
+            );
+
+            if (
+                !response.data?.success
+            ) {
+                setError(
+                    response.data?.message ||
+                    "Domain upload failed."
+                );
+
+                return;
             }
-        );
 
-    } catch (err) {
-        console.error(
-            "UPLOAD ERROR:",
-            err
-        );
+            localStorage.setItem(
+                "domain",
+                cleanDomains[0]
+            );
 
-        const message =
-            err.response?.data?.message ||
-            err.response?.data?.error ||
-            err.message ||
-            "Upload failed.";
+            navigate(
+                "/domain/billing",
+                {
+                    state: {
+                        plan: selectedPlan,
+                        domain:
+                            cleanDomains[0],
+                        domains:
+                            cleanDomains,
+                        businessEmails:
+                            validBusinessEmails,
+                        websiteSource,
+                        pages:
+                            Number(pages),
+                    },
+                }
+            );
 
-        setError(message);
+        } catch (err) {
+            console.error(
+                "UPLOAD ERROR:",
+                err
+            );
 
-    } finally {
-        setLoading(false);
-    }
-};
+            const message =
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                err.message ||
+                "Upload failed.";
+
+            setError(message);
+
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -863,7 +864,7 @@ const handleStep2Submit = async (e) => {
                                     type="button"
                                     variant="outline"
                                     onClick={addDomainField}
-                                       className="text-blue-600 border-blue-300 hover:text-blue-700 hover:bg-blue-50"
+                                    className="text-blue-600 border-blue-300 hover:text-blue-700 hover:bg-blue-50"
                                 >
                                     + Add Another Domain
                                 </Button>

@@ -157,8 +157,8 @@ console.log("Billing Selected Domain:", selectedDomain);
 
                 description: `${selectedPlan.title}`,
 
-                image: "/logo.png",
-
+                image: "/Host-age3.png",
+                
                 prefill: {
                     name: formData.fullName,
                     email: formData.email,

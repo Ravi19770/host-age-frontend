@@ -127,7 +127,7 @@ const Billing = () => {
 
         try {
             setLoading(true);
-            const API_URL = process.env.REACT_APP_API_URL;
+           
             const res = await fetch(`${PAYMENT_API}/api/payment/create-order`, {
                 method: "POST",
                 headers: {
@@ -174,8 +174,8 @@ const Billing = () => {
 
                 description: `${selectedPlan.title}`,
 
-                image: "/logo.png",
-
+                image: "/Host-age3.png",
+                
                 prefill: {
                     name: formData.fullName,
                     email: formData.email,
