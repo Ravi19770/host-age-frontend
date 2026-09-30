@@ -2,12 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/hostagei/public_html/
-    - export NODE_ENV=production
-    - /bin/bash -lc 'cd /home/hostagei/repositories/host-age-frontend && source /home/hostagei/nodevenv/host-age-backendd/22/bin/activate && npm ci --include=dev && npm run build'
-    - /bin/rm -rf $DEPLOYPATH/static
-    - /bin/rm -f $DEPLOYPATH/index.html
-    - /bin/rm -f $DEPLOYPATH/asset-manifest.json
-    - /bin/rm -f $DEPLOYPATH/manifest.json
-    - /bin/rm -f $DEPLOYPATH/robots.txt
-    - /bin/rm -f $DEPLOYPATH/favicon.ico
     - /bin/cp -R build/. $DEPLOYPATH
