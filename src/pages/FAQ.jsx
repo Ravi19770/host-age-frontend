@@ -6,7 +6,7 @@ const faqs = [
   {
     question: "What hosting plans does Host-Age offer?",
     answer:
-      "Host-Age offers Shared Hosting, Business Hosting, VPS Hosting, and Custom Enterprise solutions designed for businesses of every size.",
+      "Host-Age offers Shared Hosting, Business Hosting, and Custom Enterprise solutions designed for businesses of every size.",
   },
   {
     question: "Do all plans include a free SSL certificate?",

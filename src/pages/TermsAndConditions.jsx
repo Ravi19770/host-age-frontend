@@ -1180,7 +1180,7 @@ export default function TermsAndConditions() {
 
                             <div className="flex items-center gap-4 mt-6">
                                 <a
-                                    href="https://www.linkedin.com/in/YOUR_USERNAME"
+                                    href="https://www.linkedin.com/showcase/host-age/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="LinkedIn"
