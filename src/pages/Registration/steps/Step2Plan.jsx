@@ -83,28 +83,30 @@ const Step2Plan = ({
   // Continue
   // -----------------------------
   const handleContinue = () => {
-    if (!selectedPlan) {
-      alert("Please select a hosting plan.");
-      return;
-    }
+  if (!selectedPlan) {
+    alert("Please select a hosting plan.");
+    return;
+  }
 
-    // Save payment information
-    setData((prev) => ({
-      ...prev,
-      payment:
-        selectedPlan.price === 0
-          ? {
-            status: "FREE",
-            amount: 0,
-          }
-          : {
-            status: "PENDING",
-            amount: selectedPlan.price,
-          },
-    }));
+  setData((prev) => ({
+    ...prev,
+    selectedPlanId: selectedPlan.id,
+    selectedPlan,
+    payment:
+      selectedPlan.price === 0
+        ? { status: "FREE", amount: 0 }
+        : { status: "PENDING", amount: selectedPlan.price },
+  }));
 
-    nextStep();
-  };
+  if (selectedPlan.price > 0) {
+    // Paid plans: Add Domain first
+    nextStep("addDomain");
+    return;
+  }
+
+  // Free plan: keep existing flow
+  nextStep();
+};
   return (
     <div className="min-h-screen bg-slate-50 border-rounded">
 
@@ -358,8 +360,8 @@ const Step2Plan = ({
               className="h-12 px-10 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {selectedPlan?.price === 0
-                ? "Continue with Free Plan"
-                : "Continue to Payment"}
+                ? "Continue to Add Domain"
+                : "Continue with Free Plan"}
             </Button>
 
           </div>

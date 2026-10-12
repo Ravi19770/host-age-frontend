@@ -244,7 +244,7 @@ const RegistrationWizard = () => {
       console.log("RESPONSE:", err.response?.data);
       console.log("REQUEST:", err.config?.data);
       */}
-      
+
 
       setError(
         err.response?.data?.message || "Failed to upload domain"
@@ -679,8 +679,13 @@ const RegistrationWizard = () => {
 
               <div className="p-6 bg-blue-50 rounded-lg border border-blue-100">
                 <div className="text-center mb-4">
-                  <div className="text-3xl font-bold text-[#2563EB]">₹999/month</div>
-                  <p className="text-slate-600 mt-1">6 Email Pages Plan</p>
+                  <div className="text-3xl font-bold text-[#2563EB]">
+                    ₹{selectedPlan?.price ?? 0}/month
+                  </div>
+
+                  <p className="text-slate-600 mt-1">
+                    {selectedPlan?.title || "Selected Hosting Plan"}
+                  </p>
                 </div>
               </div>
 

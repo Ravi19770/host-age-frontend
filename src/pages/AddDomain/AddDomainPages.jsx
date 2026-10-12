@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2, Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import StepIndicator from "./components/StepIndicator";
 import DomainStep from "./components/DomainStep";
@@ -45,9 +45,9 @@ export default function AddDomainPages() {
 
   const [success, setSuccess] =
     useState(false);
-    
-   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
- const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
 
   const handleDomainNext = (
@@ -68,67 +68,99 @@ export default function AddDomainPages() {
     setStep(4);
   };
 
+  const location = useLocation();
 
-const handleSubmit = async () => {
-  try {
-    setLoading(true);
-    setError("");
+  const selectedPlan = location.state?.plan ?? null;
 
-    const response = await uploadDomain({
-      domain,
-      websiteSource,
-      websiteUrl:
-        websiteSource === "url"
-          ? websiteUrl
-          : "",
-      githubUrl:
-        websiteSource === "github"
-          ? githubUrl
-          : "",
-      pages,
-      websiteFile:
-        websiteSource === "zip"
-          ? websiteFile
-          : null,
-    });
+  const planName =
+    typeof selectedPlan === "string"
+      ? selectedPlan
+      : (
+        selectedPlan?.name ||
+        selectedPlan?.id ||
+        selectedPlan?.slug ||
+        ""
+      );
 
-    console.log("Domain upload response:", response);
+  const isFreePlan =
+    String(planName).toUpperCase() === "FREE";
 
-    // Domain added successfully
-    // Now move user to payment gateway
-    navigate("/payment", {
-      state: {
-        domain,
-        websiteSource,
-        websiteUrl:
-          websiteSource === "url"
-            ? websiteUrl
-            : "",
-        githubUrl:
-          websiteSource === "github"
-            ? githubUrl
-            : "",
-        pages,
-        domainResponse: response,
-      },
-    });
-  } catch (err) {
-    console.error("Add domain error:", err);
+  const handleSubmit = async () => {
+try {
+setLoading(true);
+setError("");
 
-    setError(
-      err.message ||
-        "Unable to add domain."
+```
+const response = await uploadDomain({
+  domain,
+  websiteSource,
+  websiteUrl:
+    websiteSource === "url" ? websiteUrl : "",
+  githubUrl:
+    websiteSource === "github" ? githubUrl : "",
+  pages,
+  websiteFile:
+    websiteSource === "zip" ? websiteFile : null,
+  plan: selectedPlan,
+});
+
+console.log("Domain upload response:", response);
+
+// FREE plan: skip payment only after backend confirmation.
+if (isFreePlan) {
+  const hostingStatus = String(
+    response?.hostingStatus || ""
+  ).toLowerCase();
+
+  if (
+    hostingStatus !== "active" &&
+    hostingStatus !== "success"
+  ) {
+    throw new Error(
+      response?.message ||
+        "Domain received, but hosting is not confirmed by the server."
     );
-  } finally {
-    setLoading(false);
   }
+
+  setSuccess(true);
+  return;
+}
+
+// PAID plans: open payment only once.
+navigate("/payment", {
+  state: {
+    domain,
+    websiteSource,
+    websiteUrl:
+      websiteSource === "url" ? websiteUrl : "",
+    githubUrl:
+      websiteSource === "github" ? githubUrl : "",
+    pages,
+    plan: selectedPlan,
+    domainResponse: response,
+  },
+});
+```
+
+} catch (err) {
+console.error("Add domain error:", err);
+
+```
+setError(
+  err.message || "Unable to add domain."
+);
+```
+
+} finally {
+setLoading(false);
+}
 };
 
 
   if (success) {
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-12 dark:bg-slate-950">
-       
+
 
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl bg-white p-10 text-center shadow-sm dark:bg-slate-900">
@@ -179,97 +211,96 @@ const handleSubmit = async () => {
   }
 
   return (
-   <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div>
-        
-<header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
-  <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
-    {/* Logo */}
-    <Link
-      to="/dashboard"
-      onClick={() => setMobileMenuOpen(false)}
-      className="flex shrink-0 items-center"
-    >
-      <img
-        src="/assets/Host-age3.png"
-        alt="Host-Age"
-         className="w-[140px] h-[140px] object-contain"
-      />
-    </Link>
+        <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
+          <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
-    {/* Desktop Navigation */}
-    <nav className="hidden items-center gap-1 md:flex">
-      {[
-        ["Overview", "/dashboard"],
-        ["Add domain", "/dashboard/add-domain"],
-        ["Billing", "/billing"],
-        ["Support", "/tickets"],
-        ["Settings", "/settings/general"],
-      ].map(([label, path]) => (
-        <Link
-          key={path}
-          to={path}
-          className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-        >
-          {label}
-        </Link>
-      ))}
-    </nav>
+            {/* Logo */}
+            <Link
+              to="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex shrink-0 items-center"
+            >
+              <img
+                src="/assets/Host-age3.png"
+                alt="Host-Age"
+                className="w-[140px] h-[140px] object-contain"
+              />
+            </Link>
 
-    {/* Right Controls */}
-    <div className="flex items-center gap-2">
+            {/* Desktop Navigation */}
+            <nav className="hidden items-center gap-1 md:flex">
+              {[
+                ["Overview", "/dashboard"],
+                ["Add domain", "/dashboard/add-domain"],
+                ["Billing", "/billing"],
+                ["Support", "/tickets"],
+                ["Settings", "/settings/general"],
+              ].map(([label, path]) => (
+                <Link
+                  key={path}
+                  to={path}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
 
-      {/* Theme Toggle */}
-      <ThemeToggle />
+            {/* Right Controls */}
+            <div className="flex items-center gap-2">
 
-      {/* Mobile Menu Button */}
-      <button
-        type="button"
-        onClick={() => setMobileMenuOpen((prev) => !prev)}
-        className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300 md:hidden dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-slate-700"
-        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-        aria-expanded={mobileMenuOpen}
-        aria-controls="mobile-navigation"
-      >
-        {mobileMenuOpen ? (
-          <X className="h-5 w-5" />
-        ) : (
-          <Menu className="h-5 w-5" />
-        )}
-      </button>
-    </div>
-  </div>
+              {/* Theme Toggle */}
+              <ThemeToggle />
 
-  {/* Mobile Navigation */}
-  <div
-    id="mobile-navigation"
-    className={`overflow-hidden border-t border-slate-200/80 bg-white transition-all duration-200 md:hidden dark:border-slate-800 dark:bg-slate-950 ${
-      mobileMenuOpen
-        ? "max-h-96 opacity-100"
-        : "max-h-0 border-transparent opacity-0"
-    }`}
-  >
-    <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
-      {[
-        ["Overview", "/dashboard"],
-        ["Add domain", "/dashboard/add-domain"],
-        ["Billing", "/billing"],
-        ["Support", "/tickets"],
-        ["Settings", "/settings/general"],
-      ].map(([label, path]) => (
-        <Link
-          key={path}
-          to={path}
-          onClick={() => setMobileMenuOpen(false)}
-          className="rounded-lg px-3 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-        >
-          {label}
-        </Link>
-      ))}
-    </nav>
-  </div>
-</header>
+              {/* Mobile Menu Button */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-300 md:hidden dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-slate-700"
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-navigation"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div
+            id="mobile-navigation"
+            className={`overflow-hidden border-t border-slate-200/80 bg-white transition-all duration-200 md:hidden dark:border-slate-800 dark:bg-slate-950 ${mobileMenuOpen
+              ? "max-h-96 opacity-100"
+              : "max-h-0 border-transparent opacity-0"
+              }`}
+          >
+            <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3 sm:px-6">
+              {[
+                ["Overview", "/dashboard"],
+                ["Add domain", "/dashboard/add-domain"],
+                ["Billing", "/billing"],
+                ["Support", "/tickets"],
+                ["Settings", "/settings/general"],
+              ].map(([label, path]) => (
+                <Link
+                  key={path}
+                  to={path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-lg px-3 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
 
         {/* Header */}
         <div className="mb-8">
@@ -280,7 +311,7 @@ const handleSubmit = async () => {
             }
             className="mb-5 text-sm font-medium text-blue-600 hover:text-blue-700"
           >
-            
+
           </button>
 
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">

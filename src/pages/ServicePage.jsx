@@ -50,8 +50,8 @@ export const plans = [
       "No cPanel Access",
       "Daily Backup",
       "Priority Support",
-       "95₹ Additional Email",
-         "192₹ Additional 1GB",
+      "95₹ Additional Email",
+      "192₹ Additional 1GB",
     ],
   },
 
@@ -73,7 +73,7 @@ export const plans = [
       "No cPanel Access",
       "Premium Support",
       "95₹ Additional Email",
-       "192₹ Additional 1GB",
+      "192₹ Additional 1GB",
     ],
   },
 ];
@@ -174,7 +174,7 @@ const ServicePage = () => {
               Services
             </Link>
 
-         {/*}   <Link
+            {/*}   <Link
               to="/pricing"
               className="font-medium text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
             >
@@ -410,8 +410,10 @@ const ServicePage = () => {
                       : "text-white"
                       }`}
                   >
-                    I design the logo that reflects the identity of your brand in
-                    a professional and unique way.
+                    Reliable Web Hosting That Keeps Your Business Online.
+
+                    Launch your website with secure, high-performance hosting and dependable service — all backed by Host-Age.
+
                   </p>
 
                   {/* Features */}

@@ -35,7 +35,7 @@ const Step1Account = ({ data, setData, nextStep }) => {
   const [emailOtpSent, setEmailOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // -----------------------------
   // Form Data
@@ -444,52 +444,52 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
           {/* Password */}
           {/* Password */}
-<div>
-  <Label htmlFor="password">Password</Label>
+          <div>
+            <Label htmlFor="password">Password</Label>
 
-  <div className="relative mt-2">
-    <Input
-      id="password"
-      type={showPassword ? "text" : "password"}
-      className="pr-10"
-      placeholder="********"
-      value={formData.password}
-      onChange={(e) => handleInputChange("password", e.target.value)}
-    />
-    <button
-      type="button"
-      onClick={() => setShowPassword((prev) => !prev)}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-      aria-label={showPassword ? "Hide password" : "Show password"}
-    >
-      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
-</div>
+            <div className="relative mt-2">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="pr-10"
+                placeholder="********"
+                value={formData.password}
+                onChange={(e) => handleInputChange("password", e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
 
-{/* Confirm Password */}
-<div>
-  <Label htmlFor="confirmPassword">Confirm Password</Label>
+          {/* Confirm Password */}
+          <div>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
 
-  <div className="relative mt-2">
-    <Input
-      id="confirmPassword"
-      type={showConfirmPassword ? "text" : "password"}
-      className="pr-10"
-      placeholder="********"
-      value={formData.confirmPassword}
-      onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-    />
-    <button
-      type="button"
-      onClick={() => setShowConfirmPassword((prev) => !prev)}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-    >
-      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
-</div>
+            <div className="relative mt-2">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                className="pr-10"
+                placeholder="********"
+                value={formData.confirmPassword}
+                onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
 
           {/* Terms */}
           <div className="flex items-start gap-3">

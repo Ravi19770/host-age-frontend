@@ -718,45 +718,82 @@ export default function AddDomainPage() {
                 response.data
             );
 
-            if (
-                !response.data?.success
-            ) {
+            if (!response.data?.success) {
                 setError(
                     response.data?.message ||
                     "Domain upload failed."
                 );
+                return;
+            }
+
+            const domainResponse = response.data;
+
+            localStorage.setItem("domain", cleanDomains[0]);
+
+            const navigationState = {
+                plan: selectedPlan,
+                domain: cleanDomains[0],
+                domains: cleanDomains,
+                businessEmails: validBusinessEmails,
+                websiteSource,
+                pages: Number(pages),
+                domainResponse,
+            };
+
+            // Check whether the selected plan is Free
+            const planName = String(
+                selectedPlan?.name ||
+                selectedPlan?.title ||
+                selectedPlan?.planName ||
+                ""
+            ).trim().toLowerCase();
+
+            const planPrice = Number(
+                selectedPlan?.price ??
+                selectedPlan?.amount
+            );
+
+            const isFreePlan =
+                planName === "free" ||
+                planName === "free plan" ||
+                planPrice === 0;
+
+            // FREE PLAN: Skip billing only after hosting is confirmed
+            if (isFreePlan) {
+                const hostingStatus = String(
+                    domainResponse?.hostingStatus ||
+                    domainResponse?.data?.hostingStatus ||
+                    domainResponse?.data?.deploymentStatus ||
+                    ""
+                ).trim().toLowerCase();
+
+                const isHostingActive = [
+                    "active",
+                    "deployed",
+                ].includes(hostingStatus);
+
+                if (!isHostingActive) {
+                    setError(
+                        "Domain submitted successfully, but website hosting is not confirmed yet. Please try again after hosting is complete."
+                    );
+                    return;
+                }
+
+                navigate("/dashboard", {
+                    replace: true,
+                    state: navigationState,
+                });
 
                 return;
             }
 
-            localStorage.setItem(
-                "domain",
-                cleanDomains[0]
-            );
-
-            navigate(
-                "/domain/billing",
-                {
-                    state: {
-                        plan: selectedPlan,
-                        domain:
-                            cleanDomains[0],
-                        domains:
-                            cleanDomains,
-                        businessEmails:
-                            validBusinessEmails,
-                        websiteSource,
-                        pages:
-                            Number(pages),
-                    },
-                }
-            );
+            // PAID PLAN: Continue to billing
+            navigate("/domain/billing", {
+                state: navigationState,
+            });
 
         } catch (err) {
-            console.error(
-                "UPLOAD ERROR:",
-                err
-            );
+            console.error("UPLOAD ERROR:", err);
 
             const message =
                 err.response?.data?.message ||
