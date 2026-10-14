@@ -1,74 +1,76 @@
+
 import { Check, ArrowUpRight, Star } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 
 const plans = [
   {
-    id: 1,
+    id: "free",
     title: "FREE HOST-AGE",
-    description:
-      "Perfect for students, portfolios and personal websites.",
     price: 0,
+    billing: "Forever",
     displayPrice: "FREE",
-    billing: "1 Year",
     featured: false,
+    maxWebsites: 1,
+    maxEmails: 1,
+    maxPages: 1,
     features: [
       "1 Website",
       "1 Domain",
       "1 Email Account",
       "No cPanel Access",
-      "Free SSL Certificate",
-      "Community Support",
+      "Free SSL",
+      "24×7 Support",
     ],
   },
   {
-    id: 2,
+    id: "pro",
     title: "PRO HOST-AGE",
-    description:
-      "Ideal for startups, freelancers and business websites.",
-    price: 142,
-    displayPrice: "₹142",
-    billing: "First Month",
+    price: 670,
+    billing: "Year",
+    displayPrice: "₹670/yr",
     featured: true,
+    maxWebsites: 1,
+    maxEmails: 6,
+    maxPages: 6,
     features: [
       "1 Website",
-      "6 Business Emails",
-      "6 Website Pages",
-      "Free SSL Certificate",
+      "6 Email Accounts",
+      "6 Pages",
+      "Free SSL",
+      "No cPanel Access",
       "Daily Backup",
       "Priority Support",
+      "95₹ Additional Email",
+      "192₹ Additional 1GB",
     ],
   },
   {
-    id: 3,
+    id: "premium",
     title: "PREMIUM HOST-AGE",
-    description:
-      "Complete hosting solution for professionals and agencies.",
-    price: 179,
-    displayPrice: "₹179",
-    billing: "Monthly",
+    price: 1245,
+    billing: "Year",
+    displayPrice: "₹1245/yr",
     featured: false,
+    maxWebsites: 1,
+    maxEmails: 15,
+    maxPages: 12,
     features: [
-      "Unlimited Bandwidth",
-      "15 Business Emails",
-      "12 Website Pages",
-      "Free SSL Certificate",
+      "1 Website",
+      "15 Email Accounts",
+      "12 Pages",
+      "Free SSL",
+      "No cPanel Access",
       "Premium Support",
-      "Advanced Security",
+      "95₹ Additional Email",
+      "192₹ Additional 1GB",
     ],
   },
 ];
 
-const Step2Plan = ({
-  data,
-  setData,
-  nextStep,
-  prevStep,
-}) => {
-  const selectedPlan = data.selectedPlan;
+const Step2Plan = ({ data, setData, nextStep, prevStep }) => {
+  const selectedPlan = data?.selectedPlan;
 
-  // -----------------------------
-  // Select Plan
-  // -----------------------------
+  // Select plan
   const handleSelect = (plan) => {
     localStorage.setItem("selectedPlan", JSON.stringify(plan));
 
@@ -76,49 +78,49 @@ const Step2Plan = ({
       ...prev,
       selectedPlanId: plan.id,
       selectedPlan: plan,
+      payment:
+        plan.price === 0
+          ? { status: "FREE", amount: 0 }
+          : { status: "PENDING", amount: plan.price },
     }));
   };
 
-  // -----------------------------
-  // Continue
-  // -----------------------------
+  // Continue to Add Domain for every plan
   const handleContinue = () => {
-  if (!selectedPlan) {
-    alert("Please select a hosting plan.");
-    return;
-  }
+    if (!selectedPlan) {
+      alert("Please select a hosting plan.");
+      return;
+    }
 
-  setData((prev) => ({
-    ...prev,
-    selectedPlanId: selectedPlan.id,
-    selectedPlan,
-    payment:
-      selectedPlan.price === 0
-        ? { status: "FREE", amount: 0 }
-        : { status: "PENDING", amount: selectedPlan.price },
-  }));
+    const price = Number(selectedPlan.price);
 
-  if (selectedPlan.price > 0) {
-    // Paid plans: Add Domain first
+    if (!Number.isFinite(price) || price < 0) {
+      alert("Invalid hosting plan price.");
+      return;
+    }
+
+    setData((prev) => ({
+      ...prev,
+      selectedPlanId: selectedPlan.id,
+      selectedPlan,
+      payment:
+        price === 0
+          ? { status: "FREE", amount: 0 }
+          : { status: "PENDING", amount: price },
+    }));
+
+    // FREE, PRO and PREMIUM all go to Add Domain first.
     nextStep("addDomain");
-    return;
-  }
+  };
 
-  // Free plan: keep existing flow
-  nextStep();
-};
   return (
-    <div className="min-h-screen bg-slate-50 border-rounded">
-
+    <div className="min-h-screen bg-slate-50">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-900 to-cyan-600 py-20">
-
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_40%)]" />
 
         <div className="relative max-w-7xl mx-auto px-6">
-
           <div className="text-center mb-16">
-
             <span className="inline-flex items-center rounded-full bg-cyan-500/20 border border-cyan-300/20 px-4 py-2 text-cyan-100 text-sm">
               Choose Your Hosting Plan
             </span>
@@ -131,76 +133,55 @@ const Step2Plan = ({
               Start with a free website or upgrade anytime to unlock
               premium hosting features.
             </p>
-
           </div>
 
           {/* Pricing Cards */}
-
           <div className="grid lg:grid-cols-3 gap-8">
-
             {plans.map((plan) => {
-
               const selected = selectedPlan?.id === plan.id;
 
               return (
-
                 <div
                   key={plan.id}
                   onClick={() => handleSelect(plan)}
-                  className={`relative cursor-pointer rounded-3xl  transition-all duration-300 overflow-hidden
-                    ${selected
-                      ? "ring-4 ring-cyan-400 shadow-2xl scale-[1.03]"
-                      : "hover:-translate-y-2 hover:shadow-2xl"}
-
-                    ${plan.featured
-                      ? "bg-gradient-to-br from-[#02142F] via-[#03295A] to-[#065F8F] text-white border border-cyan-400"
-                      : "bg-white border border-slate-200"}
-
-                      `}
+                  className={`relative cursor-pointer rounded-3xl transition-all duration-300 overflow-hidden
+                    ${
+                      selected
+                        ? "ring-4 ring-cyan-400 shadow-2xl scale-[1.03]"
+                        : "hover:-translate-y-2 hover:shadow-2xl"
+                    }
+                    ${
+                      plan.featured
+                        ? "bg-gradient-to-br from-[#02142F] via-[#03295A] to-[#065F8F] text-white border border-cyan-400"
+                        : "bg-white border border-slate-200"
+                    }`}
                 >
-
-                  {/* Recommended Badge */}
-
                   {plan.featured && (
-
                     <div className="absolute top-5 right-5">
-
                       <div className="flex items-center gap-1 rounded-full bg-yellow-400 px-3 py-1 text-xs font-semibold text-slate-900">
-
                         <Star className="w-3 h-3 fill-current" />
-
                         Recommended
-
                       </div>
-
                     </div>
-
                   )}
 
                   <div className="p-8">
-
                     <div
-                      className={`w-14 h-14 rounded-full flex items-center justify-center mb-6
-
-                          ${plan.featured
+                      className={`w-14 h-14 rounded-full flex items-center justify-center mb-6 ${
+                        plan.featured
                           ? "bg-white/20"
-                          : "bg-blue-100 text-blue-600"}
-
-                        `}
+                          : "bg-blue-100 text-blue-600"
+                      }`}
                     >
-
                       🚀
-
                     </div>
 
                     <span
-                      className={`inline-flex rounded-full px-4 py-4 text-xs font-semibold tracking-wider
-
-                        ${plan.featured
+                      className={`inline-flex rounded-full px-4 py-4 text-xs font-semibold tracking-wider ${
+                        plan.featured
                           ? "bg-white text-blue-700"
-                          : "bg-blue-100 text-blue-700"}
-
-                          `}
+                          : "bg-blue-100 text-blue-700"
+                      }`}
                     >
                       {plan.title}
                     </span>
@@ -210,102 +191,64 @@ const Step2Plan = ({
                     </h2>
 
                     <p
-                      className={` mt-2
-
-                         ${plan.featured
-                          ? "text-blue-100"
-                          : "text-slate-500"}
-
-                      `}
+                      className={`mt-2 ${
+                        plan.featured ? "text-blue-100" : "text-slate-500"
+                      }`}
                     >
                       {plan.billing}
                     </p>
 
-                    <p
-                      className={`mt-6 leading-7
-                                  
-                       ${plan.featured
-                          ? "text-slate-200"
-                          : "text-slate-600"}
-
-                       `}
-                    >
-                      {plan.description}
-                    </p>
-
-                    <div className="my-8 border-t border-white/10" />
+                    <div className="my-8 border-t border-slate-300/30" />
 
                     <ul className="space-y-4">
-
                       {plan.features.map((feature) => (
-
                         <li
                           key={feature}
                           className="flex items-center gap-3"
                         >
-
                           <div
-                            className={`w-7 h-7 rounded-full flex items-center justify-center
-
-                              ${plan.featured
+                            className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                              plan.featured
                                 ? "bg-white text-blue-700"
-                                : "bg-blue-600 text-white"}
-
-                             `}
+                                : "bg-blue-600 text-white"
+                            }`}
                           >
                             <Check size={14} />
                           </div>
-
                           <span>{feature}</span>
-
                         </li>
-
                       ))}
-
                     </ul>
 
                     <Button
                       type="button"
-                      className={`mt-10 w-full rounded-xl h-12 transition-all
-
-                        ${selected
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleSelect(plan);
+                      }}
+                      className={`mt-10 w-full rounded-xl h-12 transition-all ${
+                        selected
                           ? "bg-green-600 hover:bg-green-700 text-white"
                           : plan.featured
                             ? "bg-white text-blue-700 hover:bg-slate-100"
-                            : "bg-blue-600 hover:bg-blue-700 text-white"}
-
-                         `}
+                            : "bg-blue-600 hover:bg-blue-700 text-white"
+                      }`}
                     >
-
-                      {selected
-                        ? "✓ Selected"
-                        : "Select Plan"}
-
+                      {selected ? "✓ Selected" : "Select Plan"}
                       <ArrowUpRight className="ml-2 w-4 h-4" />
-
                     </Button>
-
                   </div>
-
                 </div>
-
               );
-
             })}
-
           </div>
-
         </div>
-
       </section>
 
-      {/* Bottom Section */}
-
+      {/* Selected plan and navigation */}
       <section className="max-w-7xl mx-auto px-6 py-10">
-
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-
             <div>
               <h3 className="text-2xl font-bold text-slate-900">
                 {selectedPlan
@@ -322,9 +265,7 @@ const Step2Plan = ({
 
             {selectedPlan && (
               <div className="rounded-xl border border-blue-200 bg-blue-50 px-6 py-4 min-w-[280px]">
-                <p className="text-sm text-slate-500">
-                  Selected Plan
-                </p>
+                <p className="text-sm text-slate-500">Selected Plan</p>
 
                 <h4 className="text-xl font-bold text-slate-900 mt-1">
                   {selectedPlan.title}
@@ -337,13 +278,17 @@ const Step2Plan = ({
                     / {selectedPlan.billing}
                   </span>
                 </p>
+
+                {Number(selectedPlan.price) === 0 && (
+                  <p className="text-green-700 text-sm mt-2">
+                    No payment required for the FREE plan.
+                  </p>
+                )}
               </div>
             )}
-
           </div>
 
           <div className="mt-10 flex flex-col sm:flex-row justify-between gap-4">
-
             <Button
               type="button"
               variant="outline"
@@ -359,21 +304,13 @@ const Step2Plan = ({
               onClick={handleContinue}
               className="h-12 px-10 bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {selectedPlan?.price === 0
-                ? "Continue to Add Domain"
-                : "Continue with Free Plan"}
+              Continue to Add Domain
             </Button>
-
           </div>
-
         </div>
-
       </section>
-
     </div>
   );
-
 };
 
 export default Step2Plan;
-

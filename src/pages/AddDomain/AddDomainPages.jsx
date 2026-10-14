@@ -90,7 +90,7 @@ try {
 setLoading(true);
 setError("");
 
-```
+
 const response = await uploadDomain({
   domain,
   websiteSource,
@@ -140,16 +140,15 @@ navigate("/payment", {
     domainResponse: response,
   },
 });
-```
+
 
 } catch (err) {
 console.error("Add domain error:", err);
 
-```
 setError(
   err.message || "Unable to add domain."
 );
-```
+
 
 } finally {
 setLoading(false);

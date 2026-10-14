@@ -1134,8 +1134,8 @@ export default function TermsAndConditions() {
                         </section>
 
                         {/* =================================================
-                LAST UPDATED
-            ================================================== */}
+                           LAST UPDATED
+                  ================================================== */}
                         <div className="text-center py-6">
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                 Terms & Conditions — Version 1.0

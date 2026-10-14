@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
@@ -7,100 +8,143 @@ import Step3Payment from "./steps/Step3Payment";
 
 import Step4Domain from "./Step4Domain";
 import Step5Email from "./Step5Email";
-import API_URL from "../../config/api";
-
 
 const RegistrationWizardd = () => {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-    const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(1);
 
-    const [registrationData, setRegistrationData] = useState({
-        user: null,
-        token: "",
-        selectedPlan: null,
-        payment: null,
-        domain: "",
-        emailPages: [],
-    });
+  const [registrationData, setRegistrationData] = useState({
+    user: null,
+    token: "",
+    selectedPlan: null,
+    selectedPlanId: null,
+    payment: null,
+    domain: "",
+    emailPages: [],
+  });
 
-    useEffect(() => {
-        const step = parseInt(searchParams.get("step"), 10);
+  useEffect(() => {
+    const step = Number(searchParams.get("step"));
 
-        if (!isNaN(step) && step >= 1 && step <= 3) {
-            setCurrentStep(step);
-        }
-    }, [searchParams]);
+    if (Number.isInteger(step) && step >= 1 && step <= 5) {
+      setCurrentStep(step);
+    }
+  }, [searchParams]);
 
-    useEffect(() => {
-        console.log("Current Step:", currentStep);
-        console.log("Registration Data:", registrationData);
-    }, [currentStep, registrationData]);
+  useEffect(() => {
+    console.log("Current Step:", currentStep);
+    console.log("Selected Plan:", registrationData.selectedPlan);
+  }, [currentStep, registrationData]);
 
-    const handleFinish = () => {
-        console.log("Registration Completed");
+  // Step 1 -> Step 2
+  const handleAccountNext = () => {
+    setCurrentStep(2);
+  };
 
-        // Navigate to dashboard after successful payment
-        navigate("/dashboard");
-    };
+  // Step 2 -> Step 3 (Add Domain)
+  const handlePlanNext = () => {
+    setCurrentStep(3);
+  };
 
-    return (
-        <div className="min-h-screen bg-slate-50 py-10">
-            <div 
-      className={`mx-auto px-4 ${
-        currentStep === 2 || currentStep === 3
-          ? "max-w-7xl"
-          : "max-w-3xl"
-      }`}
+  // Step 3 (Add Domain) -> FREE: Email, PAID: Payment
+  const handleDomainNext = () => {
+    const price = Number(registrationData.selectedPlan?.price);
+
+    if (!registrationData.selectedPlan) {
+      alert("Please select a hosting plan.");
+      setCurrentStep(2);
+      return;
+    }
+
+    if (price === 0) {
+      setCurrentStep(5);
+    } else {
+      setCurrentStep(4);
+    }
+  };
+
+  // Step 4 (Payment) -> Step 5 (Email)
+  const handlePaymentSuccess = () => {
+    setCurrentStep(5);
+  };
+
+  // Step 5 -> Dashboard
+  const handleFinish = () => {
+    navigate("/dashboard");
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 py-10">
+      <div
+        className={`mx-auto px-4 ${
+          currentStep === 2 || currentStep === 4
+            ? "max-w-7xl"
+            : "max-w-3xl"
+        }`}
       >
-                {currentStep === 1 && (
-                    <Step1Account
-                        data={registrationData}
-                        setData={setRegistrationData}
-                        nextStep={() => setCurrentStep(2)}
-                    />
-                )}
+        {currentStep === 1 && (
+          <Step1Account
+            data={registrationData}
+            setData={setRegistrationData}
+            nextStep={handleAccountNext}
+          />
+        )}
 
-                {currentStep === 2 && (
-                    <Step2Plan
-                        data={registrationData}
-                        setData={setRegistrationData}
-                        nextStep={() => setCurrentStep(3)}
-                        prevStep={() => setCurrentStep(1)}
-                    />
-                )}
+        {currentStep === 2 && (
+    <Step2Plan
+        data={registrationData}
+        setData={setRegistrationData}
+        nextStep={() => {
+            navigate("/add-domain", {
+                state: {
+                    plan: registrationData.selectedPlan
+                }
+            });
+        }}
+        prevStep={() => setCurrentStep(1)}
+    />
+)}
 
-                {currentStep === 3 && (
-                    <Step3Payment
-                        data={registrationData}
-                        setData={setRegistrationData}
-                        nextStep={handleFinish}
-                        prevStep={() => setCurrentStep(2)}
-                    />
-                )}
-                {currentStep === 4 && (
-                    <Step4Domain
-                        data={registrationData}
-                        setData={setRegistrationData}
-                        nextStep={() => setCurrentStep(5)}
-                        prevStep={() => setCurrentStep(3)}
-                    />
-                )}
+        {/* Step 3: Add Domain */}
+        {currentStep === 3 && (
+          <Step4Domain
+            data={registrationData}
+            setData={setRegistrationData}
+            nextStep={handleDomainNext}
+            prevStep={() => setCurrentStep(2)}
+          />
+        )}
 
-                {currentStep === 5 && (
-                    <Step5Email
-                        data={registrationData}
-                        setData={setRegistrationData}
-                        nextStep={() => navigate("/dashboard")}
-                        prevStep={() => setCurrentStep(4)}
-                    />
-                )}
+        {/* Step 4: Payment - paid plans only */}
+        {currentStep === 4 && (
+          <Step3Payment
+            data={registrationData}
+            setData={setRegistrationData}
+            nextStep={handlePaymentSuccess}
+            prevStep={() => setCurrentStep(3)}
+          />
+        )}
 
+        {/* Step 5: Email */}
+        {currentStep === 5 && (
+          <Step5Email
+            data={registrationData}
+            setData={setRegistrationData}
+            nextStep={handleFinish}
+            prevStep={() => {
+              const price = Number(
+                registrationData.selectedPlan?.price
+              );
 
-            </div>
-        </div>
-    );
+              setCurrentStep(price === 0 ? 3 : 4);
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default RegistrationWizardd;
