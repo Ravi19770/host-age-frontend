@@ -291,10 +291,10 @@ const ServicePage = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl font-bold font-heading text-white tracking-tight px-5 mt-10 mb-6">
-              Professional Email Hosting for Your Domain
+              Reliable Web Hosting for Your Business
             </h1>
             <p className="text-lg text-white px-5 mb-8 leading-relaxed">
-              Upload your domain and create up to 6 custom email addresses. Simple, secure, and scalable email hosting solution for businesses.
+              Get your website online with reliable web hosting designed for your business. Start with our free hosting plan and enjoy essential features, including professional business email, SSL security, and website hosting to help your business build a secure and professional online presence.
             </p>
             <Button
               data-testid="hero-cta-btn"
@@ -356,9 +356,10 @@ const ServicePage = () => {
         </div>
       </section>
       <h2 className="text-slate-900 text-center text-5xl font-extrabold leading-tight">
-        <span className="text-slate-900">Lunch, grow and succeed with</span>{" "}
+        <span className="text-slate-900">Launch, grow and succeed with</span>{" "}
         <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 bg-clip-text text-transparent">Host-Age</span>
       </h2>
+
       <section id="pricing" className="bg-gradient-to-br from-slate-950 via-blue-900 to-cyan-500 py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-8 items-center">
