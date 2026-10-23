@@ -3,15 +3,12 @@ import {
   Activity,
   ArrowRight,
   CheckCircle2,
-  CircleDollarSign,
   Globe2,
-  LayoutDashboard,
   LogOut,
   Mail,
   Plus,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   WalletCards,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import ChatBot from "../components/ChatBot";
 import ThemeToggle from "../components/ThemeToggle";
+import DnsSetupPanel from "../components/DnsSetupPanel";
 
 const Stat = ({ icon: Icon, label, value, helper, tone = "blue" }) => {
   const tones = {
@@ -50,49 +48,87 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [health, setHealth] = useState(null);
+  const [selectedDomainId, setSelectedDomainId] = useState("");
+  const [verifyingDns, setVerifyingDns] = useState(false);
+  const [dnsMessage, setDnsMessage] = useState("");
+  const [fetchError, setFetchError] = useState("");
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
+  
+const fetchData = async () => {
+  setLoading(true);
+  setFetchError("");
 
-      const [domainsRes, pagesRes, healthRes] = await Promise.all([
-        api.get("/api/domains"),
-        api.get("/api/email-pages"),
-        api.get("/api/health"),
-      ]);
+  try {
+    const results = await Promise.allSettled([
+      api.get("/api/domains"),
+      api.get("/api/email-pages"),
+      api.get("/api/health"),
+    ]);
 
-      setDomains(
-        Array.isArray(domainsRes.data)
-          ? domainsRes.data
-          : domainsRes.data?.domains || []
-      );
+    // An expired session should return the customer to login.
+    const unauthorized = results.some(
+      (result) =>
+        result.status === "rejected" &&
+        result.reason?.response?.status === 401
+    );
 
-      setEmailPages(
-        Array.isArray(pagesRes.data)
-          ? pagesRes.data
-          : pagesRes.data?.emailPages || []
-      );
-
-      setHealth(healthRes.data);
-
-    } catch (err) {
-      console.error(
-        "Failed to fetch dashboard data:",
-        err.response?.data || err.message
-      );
-
-      if (err.response?.status === 401) {
-        await logout();
-        navigate("/login", { replace: true });
-      } else {
-        setDomains([]);
-        setEmailPages([]);
-        setHealth(null);
-      }
-    } finally {
-      setLoading(false);
+    if (unauthorized) {
+      await logout();
+      navigate("/login", { replace: true });
+      return;
     }
-  };
+
+    const [domainsResult, pagesResult, healthResult] = results;
+
+    if (domainsResult.status === "fulfilled") {
+      const data = domainsResult.value.data;
+      const list = Array.isArray(data)
+        ? data
+        : data?.domains;
+
+      if (Array.isArray(list)) {
+        setDomains(list);
+      } else {
+        setFetchError("The domains API returned an invalid response.");
+      }
+    } else {
+      setFetchError("Could not load domains. Please refresh.");
+    }
+
+    if (pagesResult.status === "fulfilled") {
+      const data = pagesResult.value.data;
+      const list = Array.isArray(data)
+        ? data
+        : data?.emailPages;
+
+      if (Array.isArray(list)) {
+        setEmailPages(list);
+      } else {
+        setFetchError((previous) =>
+          previous || "The email pages API returned an invalid response."
+        );
+      }
+    } else {
+      setFetchError((previous) =>
+        previous || "Could not load email accounts."
+      );
+    }
+
+    if (healthResult.status === "fulfilled") {
+      setHealth(healthResult.value.data);
+    } else {
+      setHealth(null);
+      setFetchError((previous) =>
+        previous || "Service health is currently unavailable."
+      );
+    }
+  } catch (error) {
+    console.error("Dashboard request failed:", error);
+    setFetchError("Unable to load dashboard data. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchData();
@@ -107,7 +143,39 @@ const Dashboard = () => {
 
   const displayName = user?.fullName || user?.name || user?.email?.split("@")[0] || "there";
   const emailLimit = user?.emailLimit || 6;
+  const selectedDomain = useMemo(
+    () =>
+      domains.find(
+        (domain) => String(domain.id) === String(selectedDomainId)
+      ) || null,
+    [domains, selectedDomainId]
+  );
+  useEffect(() => {
+  if (domains.length === 0) {
+    setSelectedDomainId("");
+    return;
+  }
 
+  const selectionExists = domains.some(
+    (domain) =>
+      String(domain.id) === String(selectedDomainId)
+  );
+
+  if (!selectionExists) {
+    setSelectedDomainId(String(domains[0].id));
+  }
+}, [domains, selectedDomainId]);
+
+  const handleVerifyDns = async () => {
+    if (!selectedDomain?.id) {
+      setDnsMessage("Please select a domain first.");
+      return;
+    }
+
+    setDnsMessage(
+      "DNS verification is not configured yet. No verification was performed."
+    );
+  };
   const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
@@ -121,7 +189,7 @@ const Dashboard = () => {
             <img
               src="/assets/Host-age3.png"
               alt="Host-Age"
-              className="w-[140px] h-[140px] object-contain"
+              className="h-10 w-[140px] object-contain"
             />
           </Link>
 
@@ -162,38 +230,94 @@ const Dashboard = () => {
         </div>
       </header>
 
+
+
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-10">
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-700 p-6 text-white shadow-2xl shadow-blue-900/15 sm:p-8">
-          <div className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
-          <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl" />
-          <div className="relative max-w-2xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-blue-100">
-              <Sparkles size={14} />
-              Customer workspace
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Good to see you, {displayName}.
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-blue-100 sm:text-base">
-              Manage your domains, business email and billing from one secure workspace.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                to="/dashboard/add-domain"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg transition hover:-translate-y-0.5"
+
+        {fetchError && (
+          <div
+            role="alert"
+            className="mb-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p>{fetchError}</p>
+              <button
+                type="button"
+                onClick={fetchData}
+                disabled={loading}
+                className="shrink-0 font-semibold underline disabled:opacity-50"
               >
-                <Plus size={17} />
-                Add domain
-              </Link>
-              <Link
-                to="/billing"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
-              >
-                View billing
-                <ArrowRight size={16} />
-              </Link>
+                Retry
+              </button>
             </div>
           </div>
+        )}
+
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            Connect Your Domain
+          </h2>
+
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            Log in to your domain provider and update the DNS settings
+            using the records provided by Host-Age.
+          </p>
+
+          <label
+            htmlFor="dns-domain-select"
+            className="mt-4 block text-sm font-medium text-slate-700 dark:text-slate-200"
+          >
+            Select your domain
+          </label>
+
+          <select
+            id="dns-domain-select"
+            value={selectedDomainId}
+            onChange={(event) => {
+              setSelectedDomainId(event.target.value);
+              setDnsMessage("");
+            }}
+            className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-950"
+          >
+            <option value="">Choose a domain</option>
+
+            {domains.map((domain) => (
+              <option key={domain.id} value={String(domain.id)}>
+                {domain.domain}
+              </option>
+            ))}
+          </select>
+
+
+          {selectedDomain && (
+            <div className="mt-4 rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
+              <p className="font-semibold text-slate-900 dark:text-white">
+                {selectedDomain.domain}
+              </p>
+
+              <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-slate-600 dark:text-slate-300">
+                <li>Log in to the company where you purchased your domain.</li>
+                <li>Open Domain Settings or DNS Management.</li>
+                <li>Enter the DNS records provided by Host-Age.</li>
+                <li>Save the changes and wait for DNS propagation.</li>
+                <li>Return to Host-Age to check the connection status.</li>
+              </ol>
+
+              <DnsSetupPanel
+                domainName={selectedDomain.domain}
+                records={selectedDomain.dnsRecords || []}
+                status={selectedDomain.dnsStatus || "pending"}
+                onVerify={handleVerifyDns}
+                verifying={verifyingDns}
+              />
+
+              <p className="mt-3 text-sm text-amber-700 dark:text-amber-400">
+                Do not delete existing email-related DNS records unless
+                Host-Age specifically instructs you to change them.
+              </p>
+            </div>
+          )}
+
         </section>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -205,15 +329,13 @@ const Dashboard = () => {
             value={
               loading
                 ? "—"
-                : health?.hosting === "active"
-                  ? "Active"
-                  : "Inactive"
+                : String(health?.services?.hosting || "").toLowerCase() === "operational"
+                  ? "Operational"
+                  : health
+                    ? "Unavailable"
+                    : "Unknown"
             }
-            helper={
-              health?.hosting === "active"
-                ? "Hosting service operational"
-                : "Hosting service unavailable"
-            }
+            helper="Platform hosting service health; not individual website deployment status"
             tone="violet"
           />
           <Stat
@@ -257,7 +379,9 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${verified ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"}`}>
-                        {verified ? "Verified" : status}
+                        {verified
+                          ? "Verified"
+                          : status.charAt(0).toUpperCase() + status.slice(1)}
                       </span>
                     </div>
                   );

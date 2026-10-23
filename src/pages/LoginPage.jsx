@@ -16,29 +16,23 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async (e) => {
+ 
+const handleSubmit = async (e) => {
   e.preventDefault();
 
   setError("");
   setLoading(true);
 
   try {
-    // ==========================================
-    // LOGIN
-    // ==========================================
+    // 1. Login using existing AuthContext
     const loginResponse = await login(
       formData.email.trim(),
       formData.password
     );
 
-    console.log(
-      "✅ LOGIN RESPONSE:",
-      loginResponse
-    );
+    console.log("✅ LOGIN RESPONSE:", loginResponse);
 
-    // ==========================================
-    // GET JWT TOKEN
-    // ==========================================
+    // 2. Get JWT token
     const token =
       loginResponse?.token ||
       localStorage.getItem("token");
@@ -49,31 +43,22 @@ const LoginPage = () => {
       );
     }
 
-    console.log(
-      "✅ AUTH TOKEN AVAILABLE"
-    );
+    // 3. Save token
+    localStorage.setItem("token", token);
 
-    // ==========================================
-    // SAVE TOKEN
-    // ==========================================
-    localStorage.setItem(
-      "token",
-      token
-    );
+    // 4. Save user data
+    const loggedInUser =
+      loginResponse?.user ||
+      JSON.parse(localStorage.getItem("user") || "null");
 
-    // ==========================================
-    // SAVE USER
-    // ==========================================
-    if (loginResponse?.user) {
+    if (loggedInUser) {
       localStorage.setItem(
         "user",
-        JSON.stringify(loginResponse.user)
+        JSON.stringify(loggedInUser)
       );
     }
 
-    // ==========================================
-    // CHECK USER DOMAINS
-    // ==========================================
+    // 5. Fetch customer domains using JWT
     const { data } = await axios.get(
       `${API_URL}/api/domains`,
       {
@@ -83,24 +68,24 @@ const LoginPage = () => {
       }
     );
 
-    console.log(
-      "✅ DOMAINS RESPONSE:",
-      data
-    );
+    console.log("✅ DOMAINS RESPONSE:", data);
 
-    // ==========================================
-    // NAVIGATION
-    // ==========================================
-    const userDomains = Array.isArray(data?.data) ? data.data : [];
+    // Support common API response formats
+    const userDomains = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.data)
+        ? data.data
+        : Array.isArray(data?.domains)
+          ? data.domains
+          : [];
 
-    //if (userDomains.length === 0) {
-      //navigate("/services#pricing");
-    //} else {
-   //   navigate("/services#pricing");
-  //  }
-  navigate("/pricing", {
-  replace: true,
-});
+    console.log("✅ CUSTOMER DOMAINS:", userDomains.length);
+
+    // 6. Redirect after successful login
+    // Keep your existing admin redirect separate if required.
+    navigate("/dashboard", {
+      replace: true,
+    });
 
   } catch (err) {
     console.error(
@@ -108,28 +93,20 @@ const LoginPage = () => {
       err.response?.data || err.message
     );
 
-    const detail =
-      err.response?.data?.detail;
+    const detail = err.response?.data?.detail;
 
     if (typeof detail === "string") {
       setError(detail);
     } else if (Array.isArray(detail)) {
-      setError(
-        detail
-          .map((e) => e.msg)
-          .join(", ")
-      );
+      setError(detail.map((item) => item.msg).join(", "));
     } else if (err.response?.data?.message) {
-      setError(
-        err.response.data.message
-      );
+      setError(err.response.data.message);
     } else {
       setError(
         err.message ||
         "Login failed. Please check your credentials."
       );
     }
-
   } finally {
     setLoading(false);
   }
